@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suvam Calculator</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(
+        circle at center,
+        #24221c 0%,
+        #11110f 45%,
+        #050505 100%
+    );
+    color:white;
+}
+
+.calculator{
+    width:365px;
+    padding:24px 22px 25px;
+    border-radius:24px;
+    background:linear-gradient(145deg,#24231f,#11110f);
+    border:1px solid #3d392c;
+    box-shadow:
+        0 25px 50px rgba(0,0,0,.75),
+        inset 0 1px rgba(255,255,255,.08),
+        inset 0 -2px rgba(0,0,0,.7);
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+}
+
+.brand{
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:2px;
+    color:#aaa48e;
+}
+
+.model{
+    margin-top:2px;
+    font-size:9px;
+    letter-spacing:1px;
+    color:#6f6a59;
+}
+
+.solar-panel{
+    width:82px;
+    height:17px;
+    display:flex;
+    border-radius:3px;
+    overflow:hidden;
+    border:1px solid #171717;
+    background:#111;
+}
+
+.solar-panel span{
+    flex:1;
+    border-right:1px solid #292929;
+    background:linear-gradient(90deg,#151515,#292929);
+}
+
+.solar-panel span:last-child{
+    border-right:none;
+}
+
+.display-frame{
+    padding:10px;
+    border-radius:9px;
+    background:#0b0b0a;
+    border:1px solid #050505;
+    box-shadow:
+        inset 0 2px 5px rgba(0,0,0,.8),
+        0 1px rgba(255,255,255,.04);
+    margin-bottom:21px;
+}
+
+.display{
+    min-height:78px;
+    padding:7px 14px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-end;
+    border-radius:5px;
+    background:linear-gradient(180deg,#b8b59b,#9c9a81);
+    box-shadow:inset 0 2px 7px rgba(0,0,0,.35);
+    overflow:hidden;
+}
+
+#expression{
+    width:100%;
+    min-height:30px;
+    border:none;
+    outline:none;
+    background:transparent;
+    text-align:right;
+    color:#24251d;
+    font-family:"Courier New",monospace;
+    font-size:27px;
+    font-weight:900;
+    letter-spacing:1px;
+    padding:0;
+    white-space:nowrap;
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    /* Real blinking cursor */
+    caret-color:#24251d;
+    cursor:text;
+    user-select:text;
+    -webkit-user-select:text;
+
+    /* Remove browser blue outline */
+    -webkit-tap-highlight-color:transparent;
+}
+
+#expression::-webkit-scrollbar{
+    display:none;
+}
+
+#expression{
+    scrollbar-width:none;
+}
+
+#expression::placeholder{
+    color:#555748;
+}
+
+#preview{
+    width:100%;
+    min-height:30px;
+    text-align:right;
+    color:#555748;
+    font-family:"Courier New",monospace;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:1px;
+    opacity:.42;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    transition:
+        font-size .15s ease,
+        opacity .15s ease;
+}
+
+.display.result-mode #expression{
+    display:none;
+}
+
+.display.result-mode #preview{
+    font-size:36px;
+    font-weight:900;
+    color:#24251d;
+    opacity:1;
+}
+
+.buttons{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:11px;
+}
+
+button{
+    height:58px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:19px;
+    font-weight:bold;
+    color:#dedbd0;
+    background:linear-gradient(180deg,#36352f,#24231f);
+    border-top:1px solid rgba(255,255,255,.12);
+    border-left:1px solid rgba(255,255,255,.06);
+    border-right:1px solid rgba(0,0,0,.6);
+    border-bottom:3px solid #11110f;
+    box-shadow:0 3px 4px rgba(0,0,0,.5);
+    transition:
+        transform .08s ease,
+        box-shadow .08s ease;
+    -webkit-tap-highlight-color:transparent;
+}
+
+button.number{
+    background:linear-gradient(180deg,#3b3a35,#272621);
+    color:#e5e2d9;
+}
+
+button.number:hover{
+    background:linear-gradient(180deg,#44433d,#2b2a25);
+}
+
+button.operator{
+    background:linear-gradient(180deg,#37342a,#242219);
+    color:#d8b84c;
+    border-top-color:rgba(212,175,55,.25);
+}
+
+button.operator:hover{
+    background:linear-gradient(180deg,#413d2e,#29261c);
+}
+
+button.clear{
+    color:#d58c78;
+    background:linear-gradient(180deg,#3a302c,#27201e);
+}
+
+button.clear:hover{
+    background:linear-gradient(180deg,#443732,#2c2421);
+}
+
+button.ac{
+    color:#ffffff;
+    background:linear-gradient(180deg,#d94a42,#8f211c);
+    border-top-color:#ef6b63;
+    border-bottom-color:#5f1713;
+}
+
+button.ac:hover{
+    background:linear-gradient(180deg,#e2574f,#a32721);
+}
+
+button.equal{
+    color:#15130c;
+    background:linear-gradient(180deg,#e0c45e,#aa8a24);
+    border-top-color:#f1dc8a;
+    border-bottom-color:#70570c;
+    box-shadow:0 3px 5px rgba(0,0,0,.55);
+}
+
+button.equal:hover{
+    background:linear-gradient(180deg,#ead276,#b7962d);
+}
+
+button:active{
+    transform:translateY(3px);
+    border-bottom-width:1px;
+    box-shadow:0 1px 2px rgba(0,0,0,.5);
+}
+
+.bottom{
+    margin-top:19px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.made{
+    font-size:9px;
+    letter-spacing:1.5px;
+    color:#696556;
+}
+
+.gold-line{
+    height:1px;
+    flex:1;
+    margin-left:12px;
+    background:linear-gradient(
+        90deg,
+        #51451f,
+        transparent
+    );
+}
+
+@media(max-width:420px){
+
+    .calculator{
+        width:94%;
+        padding:20px 17px 21px;
+    }
+
+    button{
+        height:56px;
+    }
+
+    #expression{
+        font-size:24px;
+    }
+
+    #preview{
+        font-size:19px;
+    }
+
+    .display.result-mode #preview{
+        font-size:32px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+
+    <div class="top">
+
+        <div>
+            <div class="brand">SUVAM</div>
+            <div class="model">BASIC CALCULATOR</div>
+        </div>
+
+        <div class="solar-panel">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+    </div>
+
+
+    <div class="display-frame">
+
+        <div class="display" id="displayBox">
+
+            <input
+                id="expression"
+                type="text"
+                inputmode="none"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="0"
+            >
+
+            <div id="preview"></div>
+
+        </div>
+
+    </div>
+
+
+    <div class="buttons">
+
+        <button
+            type="button"
+            class="ac"
+            onclick="clearDisplay()"
+        >
+            AC
+        </button>
+
+        <button
+            type="button"
+            class="clear"
+            onclick="deleteLast()"
+        >
+            DEL
+        </button>
+
+        <button
+            type="button"
+            class="operator"
+            onclick="addValue('%')"
+        >
+            %
+        </button>
+
+        <button
+            type="button"
+            class="operator"
+            onclick="addValue('/')"
+        >
+            ÷
+        </button>
+
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('7')"
+        >
+            7
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('8')"
+        >
+            8
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('9')"
+        >
+            9
+        </button>
+
+        <button
+            type="button"
+            class="operator"
+            onclick="addValue('*')"
+        >
+            ×
+        </button>
+
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('4')"
+        >
+            4
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('5')"
+        >
+            5
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('6')"
+        >
+            6
+        </button>
+
+        <button
+            type="button"
+            class="operator"
+            onclick="addValue('-')"
+        >
+            −
+        </button>
+
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('1')"
+        >
+            1
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('2')"
+        >
+            2
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('3')"
+        >
+            3
+        </button>
+
+        <button
+            type="button"
+            class="operator"
+            onclick="addValue('+')"
+        >
+            +
+        </button>
+
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('00')"
+        >
+            00
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('0')"
+        >
+            0
+        </button>
+
+        <button
+            type="button"
+            class="number"
+            onclick="addValue('.')"
+        >
+            .
+        </button>
+
+        <button
+            type="button"
+            class="equal"
+            onclick="calculate()"
+        >
+            =
+        </button>
+
+    </div>
+
+
+    <div class="bottom">
+
+        <div class="made">
+            DESIGNED BY Mr.SUVAM ❤️
+        </div>
+
+        <div class="gold-line"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const expressionDisplay =
+    document.getElementById("expression");
+
+const previewDisplay =
+    document.getElementById("preview");
+
+const displayBox =
+    document.getElementById("displayBox");
+
+let justCalculated = false;
+
+const operators = ["+","-","*","/"];
+
+
+/* =========================================
+   CURSOR / DISPLAY POSITION
+========================================= */
+
+function keepCursorVisible(){
+
+    requestAnimationFrame(() => {
+
+        const position =
+            expressionDisplay.selectionStart;
+
+        const textLength =
+            expressionDisplay.value.length;
+
+        if(position === textLength){
+
+            expressionDisplay.scrollLeft =
+                expressionDisplay.scrollWidth;
+
+        }
+
+    });
+
+}
+
+
+/* =========================================
+   GET CURRENT NUMBER
+========================================= */
+
+function getCurrentNumber(
+    expression,
+    cursorPosition
+){
+
+    let start =
+        cursorPosition - 1;
+
+
+    while(start >= 0){
+
+        if(
+            operators.includes(
+                expression[start]
+            )
+        ){
+
+            break;
+
+        }
+
+        start--;
+
+    }
+
+
+    return expression.slice(
+        start + 1,
+        cursorPosition
+    );
+
+}
+
+
+/* =========================================
+   INSERT TEXT AT CURSOR
+========================================= */
+
+function insertAtCursor(value){
+
+    const start =
+        expressionDisplay.selectionStart;
+
+    const end =
+        expressionDisplay.selectionEnd;
+
+    const oldExpression =
+        expressionDisplay.value;
+
+
+    const newExpression =
+        oldExpression.slice(0,start) +
+        value +
+        oldExpression.slice(end);
+
+
+    expressionDisplay.value =
+        newExpression;
+
+
+    const newPosition =
+        start + value.length;
+
+
+    expressionDisplay.focus();
+
+    expressionDisplay.setSelectionRange(
+        newPosition,
+        newPosition
+    );
+
+}
+
+
+/* =========================================
+   ADD VALUE
+========================================= */
+
+function addValue(value){
+
+    /*
+        After =, number starts a new
+        calculation.
+    */
+
+    if(
+        justCalculated &&
+        !operators.includes(value) &&
+        value !== "%"
+    ){
+
+        expressionDisplay.value = "";
+
+        justCalculated = false;
+
+    }
+
+
+    /*
+        After =, operator continues
+        from the result.
+    */
+
+    if(
+        justCalculated &&
+        operators.includes(value)
+    ){
+
+        const result =
+            previewDisplay.textContent;
+
+
+        expressionDisplay.value =
+            result;
+
+
+        justCalculated = false;
+
+        displayBox.classList.remove(
+            "result-mode"
+        );
+
+
+        expressionDisplay.focus();
+
+        expressionDisplay.setSelectionRange(
+            expressionDisplay.value.length,
+            expressionDisplay.value.length
+        );
+
+    }
+
+
+    let expression =
+        expressionDisplay.value;
+
+    let start =
+        expressionDisplay.selectionStart;
+
+    let end =
+        expressionDisplay.selectionEnd;
+
+
+    /*
+        ---------------------------------
+        OPERATOR
+        ---------------------------------
+    */
+
+    if(
+        operators.includes(value)
+    ){
+
+        /*
+            Beginning negative number
+        */
+
+        if(
+            value === "-" &&
+            start === 0 &&
+            end === 0
+        ){
+
+            insertAtCursor("-");
+
+        }
+
+
+        /*
+            Negative number after operator
+
+            5 * -3
+            5 + -3
+        */
+
+        else if(
+            value === "-" &&
+            start === end &&
+            start > 0 &&
+            operators.includes(
+                expression[start - 1]
+            )
+        ){
+
+            insertAtCursor("-");
+
+        }
+
+
+        /*
+            Replace operator when cursor
+            is immediately after it.
+
+            5+
+            cursor here
+            pressing * -> 5*
+        */
+
+        else if(
+            start === end &&
+            start > 0 &&
+            operators.includes(
+                expression[start - 1]
+            )
+        ){
+
+            expressionDisplay.value =
+                expression.slice(0,start - 1) +
+                value +
+                expression.slice(end);
+
+
+            const newPosition =
+                start;
+
+
+            expressionDisplay.focus();
+
+            expressionDisplay.setSelectionRange(
+                newPosition,
+                newPosition
+            );
+
+        }
+
+
+        /*
+            If selection exists, replace
+            selection with operator.
+        */
+
+        else{
+
+            insertAtCursor(value);
+
+        }
+
+    }
+
+
+    /*
+        ---------------------------------
+        PERCENTAGE
+        ---------------------------------
+    */
+
+    else if(value === "%"){
+
+        expression =
+            expressionDisplay.value;
+
+        start =
+            expressionDisplay.selectionStart;
+
+        end =
+            expressionDisplay.selectionEnd;
+
+
+        if(start !== end){
+
+            return;
+
+        }
+
+
+        if(start === 0){
+
+            return;
+
+        }
+
+
+        /*
+            % must follow a number.
+        */
+
+        const previous =
+            expression[start - 1];
+
+
+        if(
+            !/[0-9.]$/.test(previous)
+        ){
+
+            return;
+
+        }
+
+
+        /*
+            Don't allow 10%%
+        */
+
+        if(
+            previous === "%" ||
+            (
+                start > 1 &&
+                expression[start - 1] === "%" 
+            )
+        ){
+
+            return;
+
+        }
+
+
+        insertAtCursor("%");
+
+    }
+
+
+    /*
+        ---------------------------------
+        DECIMAL
+        ---------------------------------
+    */
+
+    else if(value === "."){
+
+        expression =
+            expressionDisplay.value;
+
+        start =
+            expressionDisplay.selectionStart;
+
+        end =
+            expressionDisplay.selectionEnd;
+
+
+        /*
+            If replacing selected text,
+            simply insert decimal.
+        */
+
+        if(start !== end){
+
+            insertAtCursor("0.");
+
+        }
+
+        else{
+
+            const currentNumber =
+                getCurrentNumber(
+                    expression,
+                    start
+                );
+
+
+            if(
+                currentNumber.includes(".")
+            ){
+
+                return;
+
+            }
+
+
+            /*
+                Beginning or after operator:
+
+                .5 -> 0.5
+            */
+
+            if(
+                start === 0 ||
+                operators.includes(
+                    expression[start - 1]
+                )
+            ){
+
+                insertAtCursor("0.");
+
+            }
+
+            else{
+
+                insertAtCursor(".");
+
+            }
+
+        }
+
+    }
+
+
+    /*
+        ---------------------------------
+        NUMBER
+        ---------------------------------
+    */
+
+    else{
+
+        insertAtCursor(value);
+
+    }
+
+
+    displayBox.classList.remove(
+        "result-mode"
+    );
+
+
+    updatePreview();
+
+    keepCursorVisible();
+
+}
+
+
+/* =========================================
+   CLEAR
+========================================= */
+
+function clearDisplay(){
+
+    expressionDisplay.value = "";
+
+    previewDisplay.textContent = "";
+
+    displayBox.classList.remove(
+        "result-mode"
+    );
+
+    justCalculated = false;
+
+    expressionDisplay.focus();
+
+}
+
+
+/* =========================================
+   DELETE FROM CURSOR
+========================================= */
+
+function deleteLast(){
+
+    if(justCalculated){
+
+        clearDisplay();
+
+        return;
+
+    }
+
+
+    const start =
+        expressionDisplay.selectionStart;
+
+    const end =
+        expressionDisplay.selectionEnd;
+
+
+    /*
+        Delete selected text
+    */
+
+    if(start !== end){
+
+        expressionDisplay.value =
+            expressionDisplay.value.slice(0,start) +
+            expressionDisplay.value.slice(end);
+
+
+        expressionDisplay.focus();
+
+        expressionDisplay.setSelectionRange(
+            start,
+            start
+        );
+
+    }
+
+
+    /*
+        Delete character immediately
+        before cursor
+    */
+
+    else if(start > 0){
+
+        expressionDisplay.value =
+            expressionDisplay.value.slice(0,start - 1) +
+            expressionDisplay.value.slice(start);
+
+
+        expressionDisplay.focus();
+
+        expressionDisplay.setSelectionRange(
+            start - 1,
+            start - 1
+        );
+
+    }
+
+
+    updatePreview();
+
+    keepCursorVisible();
+
+}
+
+
+/* =========================================
+   TOKENIZER
+========================================= */
+
+function tokenize(expression){
+
+    const tokens = [];
+
+    let i = 0;
+
+
+    while(
+        i < expression.length
+    ){
+
+        const char =
+            expression[i];
+
+
+        /*
+            NUMBER
+        */
+
+        if(
+            /[0-9.]/.test(char)
+        ){
+
+            let number = "";
+
+            let decimalCount = 0;
+
+
+            while(
+                i < expression.length &&
+                /[0-9.]/.test(
+                    expression[i]
+                )
+            ){
+
+                if(
+                    expression[i] === "."
+                ){
+
+                    decimalCount++;
+
+                    if(
+                        decimalCount > 1
+                    ){
+
+                        return null;
+
+                    }
+
+                }
+
+
+                number +=
+                    expression[i];
+
+                i++;
+
+            }
+
+
+            if(
+                number === "." ||
+                number === ""
+            ){
+
+                return null;
+
+            }
+
+
+            const numericValue =
+                Number(number);
+
+
+            if(
+                !Number.isFinite(
+                    numericValue
+                )
+            ){
+
+                return null;
+
+            }
+
+
+            let percentage =
+                false;
+
+
+            /*
+                Number followed by %
+            */
+
+            if(
+                expression[i] === "%"
+            ){
+
+                percentage = true;
+
+                i++;
+
+            }
+
+
+            tokens.push({
+                type:"number",
+                value:numericValue,
+                percentage:percentage
+            });
+
+
+            /*
+                Example:
+
+                500%70
+
+                becomes:
+
+                500% × 70
+            */
+
+            if(
+                percentage &&
+                i < expression.length &&
+                /[0-9.]/.test(
+                    expression[i]
+                )
+            ){
+
+                tokens.push({
+                    type:"operator",
+                    value:"*"
+                });
+
+            }
+
+
+            continue;
+
+        }
+
+
+        /*
+            OPERATOR
+        */
+
+        if(
+            operators.includes(char)
+        ){
+
+            tokens.push({
+                type:"operator",
+                value:char
+            });
+
+            i++;
+
+            continue;
+
+        }
+
+
+        return null;
+
+    }
+
+
+    return tokens;
+
+}
+
+
+/* =========================================
+   CALCULATOR PARSER
+========================================= */
+
+function evaluateExpression(
+    expression
+){
+
+    const tokens =
+        tokenize(expression);
+
+
+    if(
+        !tokens ||
+        tokens.length === 0
+    ){
+
+        return null;
+
+    }
+
+
+    let position = 0;
+
+
+    /*
+        NUMBER
+    */
+
+    function parseFactor(){
+
+        const token =
+            tokens[position];
+
+
+        if(!token){
+
+            return null;
+
+        }
+
+
+        /*
+            Unary minus
+        */
+
+        if(
+            token.type === "operator" &&
+            token.value === "-"
+        ){
+
+            position++;
+
+
+            const result =
+                parseFactor();
+
+
+            if(
+                result === null
+            ){
+
+                return null;
+
+            }
+
+
+            return {
+                value:-result.value,
+                percentage:false
+            };
+
+        }
+
+
+        /*
+            Unary plus
+        */
+
+        if(
+            token.type === "operator" &&
+            token.value === "+"
+        ){
+
+            position++;
+
+            return parseFactor();
+
+        }
+
+
+        if(
+            token.type !== "number"
+        ){
+
+            return null;
+
+        }
+
+
+        position++;
+
+
+        let value =
+            token.value;
+
+
+        /*
+            Percentage value
+
+            500% = 5
+            4%   = 0.04
+            10%  = 0.1
+        */
+
+        if(
+            token.percentage
+        ){
+
+            value =
+                value / 100;
+
+        }
+
+
+        return {
+            value:value,
+            percentage:token.percentage
+        };
+
+    }
+
+
+    /*
+        MULTIPLICATION / DIVISION
+    */
+
+    function parseTerm(){
+
+        let left =
+            parseFactor();
+
+
+        if(
+            left === null
+        ){
+
+            return null;
+
+        }
+
+
+        while(
+            position < tokens.length
+        ){
+
+            const token =
+                tokens[position];
+
+
+            if(
+                token.type !== "operator" ||
+                (
+                    token.value !== "*" &&
+                    token.value !== "/"
+                )
+            ){
+
+                break;
+
+            }
+
+
+            const operator =
+                token.value;
+
+
+            position++;
+
+
+            const right =
+                parseFactor();
+
+
+            if(
+                right === null
+            ){
+
+                return null;
+
+            }
+
+
+            if(operator === "*"){
+
+                left.value *=
+                    right.value;
+
+            }
+
+            else{
+
+                if(
+                    right.value === 0
+                ){
+
+                    return null;
+
+                }
+
+
+                left.value /=
+                    right.value;
+
+            }
+
+
+            if(
+                !Number.isFinite(
+                    left.value
+                )
+            ){
+
+                return null;
+
+            }
+
+
+            /*
+                Once percentage participates
+                in × or ÷, it becomes a normal
+                numeric result.
+
+                10% × 2 = 0.2
+            */
+
+            left.percentage = false;
+
+        }
+
+
+        return left;
+
+    }
+
+
+    /*
+        ADDITION / SUBTRACTION
+    */
+
+    function parseExpression(){
+
+        let left =
+            parseTerm();
+
+
+        if(
+            left === null
+        ){
+
+            return null;
+
+        }
+
+
+        while(
+            position < tokens.length
+        ){
+
+            const token =
+                tokens[position];
+
+
+            if(
+                token.type !== "operator" ||
+                (
+                    token.value !== "+" &&
+                    token.value !== "-"
+                )
+            ){
+
+                break;
+
+            }
+
+
+            const operator =
+                token.value;
+
+
+            position++;
+
+
+            const right =
+                parseTerm();
+
+
+            if(
+                right === null
+            ){
+
+                return null;
+
+            }
+
+
+            /*
+                PHONE CALCULATOR PERCENTAGE
+
+                200 + 10%
+                = 220
+
+                200 - 10%
+                = 180
+
+                But:
+
+                200 + 10% × 2
+                = 200.2
+
+                because 10% × 2 is calculated
+                first as 0.1 × 2 = 0.2.
+            */
+
+            if(
+                right.percentage
+            ){
+
+                const percentageAmount =
+                    left.value *
+                    right.value;
+
+
+                if(
+                    operator === "+"
+                ){
+
+                    left.value +=
+                        percentageAmount;
+
+                }
+
+                else{
+
+                    left.value -=
+                        percentageAmount;
+
+                }
+
+            }
+
+            else{
+
+                if(
+                    operator === "+"
+                ){
+
+                    left.value +=
+                        right.value;
+
+                }
+
+                else{
+
+                    left.value -=
+                        right.value;
+
+                }
+
+            }
+
+
+            left.percentage = false;
+
+
+            if(
+                !Number.isFinite(
+                    left.value
+                )
+            ){
+
+                return null;
+
+            }
+
+        }
+
+
+        return left;
+
+    }
+
+
+    const result =
+        parseExpression();
+
+
+    /*
+        Everything must be consumed.
+    */
+
+    if(
+        result === null ||
+        position !== tokens.length
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+        !Number.isFinite(
+            result.value
+        )
+    ){
+
+        return null;
+
+    }
+
+
+    return result.value;
+
+}
+
+
+/* =========================================
+   FORMAT RESULT
+========================================= */
+
+function formatResult(result){
+
+    if(
+        Object.is(result,-0)
+    ){
+
+        result = 0;
+
+    }
+
+
+    if(
+        Number.isInteger(result)
+    ){
+
+        return result.toString();
+
+    }
+
+
+    return parseFloat(
+        result.toFixed(10)
+    ).toString();
+
+}
+
+
+/* =========================================
+   LIVE PREVIEW
+========================================= */
+
+function updatePreview(){
+
+    let expression =
+        expressionDisplay.value;
+
+
+    if(
+        expression === ""
+    ){
+
+        previewDisplay.textContent = "";
+
+        return;
+
+    }
+
+
+    /*
+        For preview, remove only
+        unfinished operators at the end.
+    */
+
+    expression =
+        expression.replace(
+            /[+\-*/]+$/,
+            ""
+        );
+
+
+    if(
+        expression === "" ||
+        expression === "-"
+    ){
+
+        previewDisplay.textContent = "";
+
+        return;
+
+    }
+
+
+    const result =
+        evaluateExpression(
+            expression
+        );
+
+
+    if(
+        result !== null
+    ){
+
+        previewDisplay.textContent =
+            formatResult(result);
+
+    }
+
+    else{
+
+        previewDisplay.textContent = "";
+
+    }
+
+}
+
+
+/* =========================================
+   EQUAL
+========================================= */
+
+function calculate(){
+
+    const expression =
+        expressionDisplay.value.trim();
+
+
+    if(
+        expression === ""
+    ){
+
+        return;
+
+    }
+
+
+    /*
+        Don't calculate if expression
+        ends with an operator.
+    */
+
+    if(
+        operators.includes(
+            expression.slice(-1)
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const result =
+        evaluateExpression(
+            expression
+        );
+
+
+    if(
+        result === null
+    ){
+
+        previewDisplay.textContent =
+            "Error";
+
+
+        displayBox.classList.remove(
+            "result-mode"
+        );
+
+
+        setTimeout(
+            () => {
+
+                clearDisplay();
+
+            },
+            1000
+        );
+
+
+        return;
+
+    }
+
+
+    const finalResult =
+        formatResult(result);
+
+
+    expressionDisplay.value = "";
+
+
+    previewDisplay.textContent =
+        finalResult;
+
+
+    displayBox.classList.add(
+        "result-mode"
+    );
+
+
+    justCalculated = true;
+
+}
+
+
+/* =========================================
+   REAL KEYBOARD INPUT
+========================================= */
+
+expressionDisplay.addEventListener(
+    "keydown",
+    function(event){
+
+        const key =
+            event.key;
+
+
+        /*
+            Calculator characters
+        */
+
+        if(
+            (key >= "0" && key <= "9") ||
+            key === "+" ||
+            key === "-" ||
+            key === "*" ||
+            key === "/" ||
+            key === "%" ||
+            key === "."
+        ){
+
+            event.preventDefault();
+
+            addValue(key);
+
+            return;
+
+        }
+
+
+        /*
+            Backspace
+        */
+
+        if(
+            key === "Backspace"
+        ){
+
+            event.preventDefault();
+
+            deleteLast();
+
+            return;
+
+        }
+
+
+        /*
+            Enter / =
+        */
+
+        if(
+            key === "Enter" ||
+            key === "="
+        ){
+
+            event.preventDefault();
+
+            calculate();
+
+            return;
+
+        }
+
+
+        /*
+            Escape
+        */
+
+        if(
+            key === "Escape"
+        ){
+
+            event.preventDefault();
+
+            clearDisplay();
+
+            return;
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   HANDLE DIRECT TEXT PASTE
+========================================= */
+
+expressionDisplay.addEventListener(
+    "paste",
+    function(event){
+
+        event.preventDefault();
+
+
+        const pasted =
+            event.clipboardData
+                .getData("text")
+                .replace(/[^0-9+\-*/%.]/g,"");
+
+
+        if(
+            pasted === ""
+        ){
+
+            return;
+
+        }
+
+
+        const start =
+            expressionDisplay.selectionStart;
+
+        const end =
+            expressionDisplay.selectionEnd;
+
+
+        const oldValue =
+            expressionDisplay.value;
+
+
+        expressionDisplay.value =
+            oldValue.slice(0,start) +
+            pasted +
+            oldValue.slice(end);
+
+
+        const newPosition =
+            start + pasted.length;
+
+
+        expressionDisplay.focus();
+
+        expressionDisplay.setSelectionRange(
+            newPosition,
+            newPosition
+        );
+
+
+        updatePreview();
+
+        keepCursorVisible();
+
+    }
+);
+
+
+/* =========================================
+   PREVENT INVALID DIRECT INPUT
+========================================= */
+
+expressionDisplay.addEventListener(
+    "input",
+    function(){
+
+        /*
+            Keep only calculator characters.
+        */
+
+        const oldValue =
+            expressionDisplay.value;
+
+
+        const cleanValue =
+            oldValue.replace(
+                /[^0-9+\-*/%.]/g,
+                ""
+            );
+
+
+        if(
+            oldValue !== cleanValue
+        ){
+
+            const position =
+                expressionDisplay.selectionStart;
+
+
+            expressionDisplay.value =
+                cleanValue;
+
+
+            const safePosition =
+                Math.min(
+                    position,
+                    cleanValue.length
+                );
+
+
+            expressionDisplay.setSelectionRange(
+                safePosition,
+                safePosition
+            );
+
+        }
+
+
+        updatePreview();
+
+        keepCursorVisible();
+
+    }
+);
+
+
+/* =========================================
+   KEEP CURSOR VISIBLE AFTER CLICK
+========================================= */
+
+expressionDisplay.addEventListener(
+    "click",
+    function(){
+
+        justCalculated = false;
+
+        displayBox.classList.remove(
+            "result-mode"
+        );
+
+        keepCursorVisible();
+
+    }
+);
+
+
+/* =========================================
+   SELECTION CHANGE
+========================================= */
+
+expressionDisplay.addEventListener(
+    "select",
+    function(){
+
+        keepCursorVisible();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
